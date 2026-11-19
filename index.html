@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spine Onboarding Intake (synthetic demo)</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6b66;
+    --border: #d9d9d4; --accent: #2b5fd9; --ok: #1f7a4a; --warn: #a15c00; --bad: #b3261e;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161614; --surface: #1f1f1c; --text: #ecece8; --muted: #9a9a93;
+      --border: #3a3a35; --accent: #7aa2ff; --ok: #5fcf93; --warn: #e8b04c; --bad: #ff8a80;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161614; --surface: #1f1f1c; --text: #ecece8; --muted: #9a9a93;
+    --border: #3a3a35; --accent: #7aa2ff; --ok: #5fcf93; --warn: #e8b04c; --bad: #ff8a80;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .banner {
+    border: 1px solid var(--border); border-left: 4px solid var(--warn);
+    background: var(--surface); padding: 10px 14px; border-radius: 6px;
+    margin-bottom: 20px; font-size: 14px;
+  }
+  .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px;
+  }
+  .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 8px 0 4px; }
+  input, select {
+    width: 100%; padding: 8px 10px; font: inherit; color: var(--text);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  }
+  .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+  .row > * { flex: 1 1 140px; }
+  button {
+    font: inherit; padding: 8px 14px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  }
+  button.secondary { background: transparent; color: var(--accent); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid currentColor; }
+  .complete { color: var(--ok); }
+  .missing { color: var(--warn); }
+  .needs_review { color: var(--bad); }
+  .flag { color: var(--bad); font-size: 14px; margin: 4px 0; }
+  .draft {
+    white-space: pre-wrap; background: var(--bg); border: 1px dashed var(--border);
+    padding: 10px; border-radius: 6px; font-size: 14px; margin-top: 8px;
+  }
+  .muted { color: var(--muted); font-size: 13px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Client onboarding intake</h1>
+  <p class="sub">Prototype. All companies, names, and documents are synthetic. Nothing is sent to anyone.</p>
+
+  <div class="banner">
+    Compliance rules here are placeholders for demonstration. State forms and federal requirements must be verified against official sources before any real use.
+  </div>
+
+  <div class="toolbar">
+    <button id="load-example">Load synthetic example</button>
+    <button id="reset" class="secondary">Reset</button>
+  </div>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="company-h">
+      <h2 id="company-h">1. Company</h2>
+      <label for="c-name">Company name</label>
+      <input id="c-name" placeholder="e.g. Acme Synthetic Co">
+      <div class="row">
+        <div>
+          <label for="c-state">State</label>
+          <select id="c-state">
+            <option value="">Choose</option>
+            <option>CA</option><option>NY</option><option>TX</option><option>ZZ</option>
+          </select>
+        </div>
+        <div>
+          <label for="c-headcount">Headcount</label>
+          <input id="c-headcount" type="number" min="0" value="10">
+        </div>
+      </div>
+      <label><input id="c-benefits" type="checkbox" style="width:auto"> Company offers a benefits plan</label>
+    </section>
+
+    <section class="card" aria-labelledby="emp-h">
+      <h2 id="emp-h">2. Workers</h2>
+      <div class="row">
+        <div><label for="e-name">Name</label><input id="e-name" placeholder="Synthetic name"></div>
+        <div>
+          <label for="e-type">Type</label>
+          <select id="e-type"><option value="employee">Employee</option><option value="contractor">Contractor</option></select>
+        </div>
+        <div><label for="e-start">Start date</label><input id="e-start" type="date"></div>
+      </div>
+      <p><button id="add-emp" class="secondary">Add worker</button></p>
+      <table>
+        <thead><tr><th>Name</th><th>Type</th><th>Start</th></tr></thead>
+        <tbody id="emp-body"><tr><td colspan="3" class="muted">No workers yet.</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card full" aria-labelledby="sub-h">
+      <h2 id="sub-h">3. Document intake</h2>
+      <p class="muted">Simulates a document arriving. The declared type is what the system classifies it as.</p>
+      <div class="row">
+        <div><label for="s-worker">Worker</label><select id="s-worker"></select></div>
+        <div>
+          <label for="s-doc">Document type</label>
+          <select id="s-doc">
+            <option>OFFER_LETTER</option><option>W-4</option><option>I-9</option>
+            <option>DIRECT_DEPOSIT</option><option>STATE_WITHHOLDING</option>
+            <option>BENEFITS_ENROLLMENT</option><option>W-9</option><option>CONTRACTOR_AGREEMENT</option>
+          </select>
+        </div>
+        <div><label for="s-file">Filename</label><input id="s-file" placeholder="e.g. w4_scan.pdf"></div>
+        <div style="flex:0 0 auto"><button id="add-sub">Submit document</button></div>
+      </div>
+      <p class="muted" id="sub-count">0 documents received.</p>
+    </section>
+
+    <section class="card full" aria-labelledby="out-h">
+      <h2 id="out-h">4. Checklist and status</h2>
+      <div id="flags"></div>
+      <table>
+        <thead><tr><th>Worker</th><th>Status</th><th>Missing</th><th>Problems</th></tr></thead>
+        <tbody id="status-body"><tr><td colspan="4" class="muted">Add a company and workers to see status.</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card full" aria-labelledby="rem-h">
+      <h2 id="rem-h">5. Reminder queue (human approval required)</h2>
+      <p class="muted">Drafts are never sent automatically. Approving here only marks the draft as approved in this demo.</p>
+      <div id="reminders"><p class="muted">No reminders pending.</p></div>
+    </section>
+  </div>
+</main>
+
+<script>
+"use strict";
+
+// ---- Rules: mirror onboarding.py. Keep in sync. ----
+const STATE_RULES = {
+  CA: "STATE_WITHHOLDING", NY: "STATE_WITHHOLDING", TX: null
+};
+const MAX_AUTO_HEADCOUNT = 50;
+
+function requiredDocs(company, emp) {
+  if (emp.type === "contractor") return ["W-9", "CONTRACTOR_AGREEMENT"];
+  const docs = ["OFFER_LETTER", "W-4", "I-9", "DIRECT_DEPOSIT"];
+  const stateForm = STATE_RULES[company.state];
+  if (stateForm) docs.push(stateForm);
+  if (company.benefits) docs.push("BENEFITS_ENROLLMENT");
+  return docs;
+}
+
+function evaluate(company, workers, submissions) {
+  const flags = [];
+  if (company.headcount > MAX_AUTO_HEADCOUNT) flags.push(`Headcount ${company.headcount} exceeds the auto-processing limit of ${MAX_AUTO_HEADCOUNT}.`);
+  if (!(company.state in STATE_RULES)) flags.push(`State "${company.state || "(none)"}" has no configured rules.`);
+
+  const names = new Set(workers.map(w => w.name));
+  const seen = new Set();
+  const problems = Object.fromEntries(workers.map(w => [w.name, []]));
+  const unknown = [];
+
+  for (const s of submissions) {
+    if (!names.has(s.worker)) { unknown.push(s.worker); continue; }
+    const key = s.worker + "|" + s.doc;
+    if (seen.has(key)) { problems[s.worker].push("duplicate: " + s.doc); continue; }
+    seen.add(key);
+    const worker = workers.find(w => w.name === s.worker);
+    if (!requiredDocs(company, worker).includes(s.doc)) problems[s.worker].push("unexpected: " + s.doc);
+  }
+  if (unknown.length) flags.push("Submissions for workers not on the roster: " + [...new Set(unknown)].join(", ") + ".");
+
+  const statuses = workers.map(w => {
+    const required = requiredDocs(company, w);
+    const received = new Set(submissions.filter(s => s.worker === w.name).map(s => s.doc));
+    const missing = required.filter(d => !received.has(d));
+    const probs = problems[w.name];
+    const state = probs.length ? "needs_review" : missing.length ? "missing" : "complete";
+    return { name: w.name, state, missing, problems: probs };
+  });
+  return { statuses, flags };
+}
+
+// ---- State ----
+let company = { name: "", state: "", headcount: 10, benefits: false };
+let workers = [];
+let submissions = [];
+
+// ---- Helpers ----
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function readCompany() {
+  company = {
+    name: $("c-name").value.trim(),
+    state: $("c-state").value,
+    headcount: parseInt($("c-headcount").value, 10) || 0,
+    benefits: $("c-benefits").checked
+  };
+}
+
+function render() {
+  readCompany();
+
+  // worker table and worker selector
+  const wb = $("emp-body");
+  wb.innerHTML = workers.length
+    ? workers.map(w => `<tr><td>${esc(w.name)}</td><td>${esc(w.type)}</td><td>${esc(w.start)}</td></tr>`).join("")
+    : '<tr><td colspan="3" class="muted">No workers yet.</td></tr>';
+  const sel = $("s-worker");
+  const prev = sel.value;
+  sel.innerHTML = workers.map(w => `<option>${esc(w.name)}</option>`).join("");
+  if (workers.some(w => w.name === prev)) sel.value = prev;
+
+  $("sub-count").textContent = `${submissions.length} document${submissions.length === 1 ? "" : "s"} received.`;
+
+  if (!workers.length) {
+    $("flags").innerHTML = "";
+    $("status-body").innerHTML = '<tr><td colspan="4" class="muted">Add a company and workers to see status.</td></tr>';
+    $("reminders").innerHTML = '<p class="muted">No reminders pending.</p>';
+    return;
+  }
+
+  const { statuses, flags } = evaluate(company, workers, submissions);
+
+  $("flags").innerHTML = flags.map(f => `<p class="flag">⚠ ${esc(f)}</p>`).join("");
+
+  $("status-body").innerHTML = statuses.map(s => `
+    <tr>
+      <td>${esc(s.name)}</td>
+      <td><span class="tag ${s.state}">${s.state.replace("_", " ")}</span></td>
+      <td>${s.missing.map(esc).join(", ") || "—"}</td>
+      <td>${s.problems.map(p => `<div class="flag">${esc(p)}</div>`).join("") || "—"}</td>
+    </tr>`).join("");
+
+  // reminders: only for missing items, never auto-sent, and never for needs_review (those escalate)
+  const pending = statuses.filter(s => s.state === "missing");
+  if (!pending.length) {
+    $("reminders").innerHTML = '<p class="muted">No reminders pending.</p>';
+  } else {
+    $("reminders").innerHTML = pending.map((s, i) => `
+      <div class="card" style="margin-bottom:12px">
+        <strong>To: ${esc(company.name || "Company")} · re: ${esc(s.name)}</strong>
+        <div class="draft">Hi ${esc(company.name || "team")},
+
+We're still missing the following for ${esc(s.name)}: ${esc(s.missing.join(", "))}.
+Please upload them when you get a chance. Let us know if you have questions.</div>
+        <p class="muted">Status: not approved. A human must approve before anything is sent.</p>
+        <button class="secondary" data-approve="${i}" disabled>Approve and send (disabled in demo)</button>
+      </div>`).join("");
+  }
+}
+
+// ---- Events ----
+$("add-emp").addEventListener("click", () => {
+  const name = $("e-name").value.trim();
+  const start = $("e-start").value;
+  if (!name) { alert("Enter a worker name."); return; }
+  if (workers.some(w => w.name === name)) { alert("That worker is already on the roster."); return; }
+  workers.push({ name, type: $("e-type").value, start });
+  $("e-name").value = "";
+  render();
+});
+
+$("add-sub").addEventListener("click", () => {
+  const worker = $("s-worker").value;
+  if (!worker) { alert("Add a worker first."); return; }
+  submissions.push({ worker, doc: $("s-doc").value, file: $("s-file").value.trim() || "(no filename)" });
+  $("s-file").value = "";
+  render();
+});
+
+["c-name", "c-state", "c-headcount", "c-benefits"].forEach(id =>
+  $(id).addEventListener("input", render));
+$("c-state").addEventListener("change", render);
+$("c-benefits").addEventListener("change", render);
+
+$("reset").addEventListener("click", () => {
+  company = { name: "", state: "", headcount: 10, benefits: false };
+  workers = []; submissions = [];
+  $("c-name").value = ""; $("c-state").value = ""; $("c-headcount").value = "10";
+  $("c-benefits").checked = false;
+  render();
+});
+
+// Loads the same shape of data as data/synthetic_companies.json, including the wrong-form and duplicate cases.
+$("load-example").addEventListener("click", () => {
+  $("c-name").value = "Acme Synthetic Co";
+  $("c-state").value = "CA";
+  $("c-headcount").value = "30";
+  $("c-benefits").checked = true;
+  workers = [
+    { name: "Ada Example", type: "employee", start: "2026-11-03" },
+    { name: "Ben Example", type: "employee", start: "2026-11-03" },
+    { name: "Cy Contractor", type: "contractor", start: "2026-11-05" }
+  ];
+  submissions = [
+    { worker: "Ada Example", doc: "W-4", file: "ada_w4.pdf" },
+    { worker: "Ada Example", doc: "W-4", file: "ada_w4_copy.pdf" },
+    { worker: "Ada Example", doc: "W-9", file: "ada_w9_wrong_form.pdf" },
+    { worker: "Cy Contractor", doc: "W-9", file: "cy_w9.pdf" }
+  ];
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
