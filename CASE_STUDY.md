@@ -52,7 +52,6 @@ The n8n workflow was run against sample payloads. Each run shows which branch th
 
 All five rows were run in n8n. To reproduce the JS checks outside n8n, run `node n8n/test_evaluate_intake.js` from the repo root. It requires Node 18 or later.
 
-To reproduce the JS checks, run `node n8n/test_evaluate_intake.js` from the repo root. It requires Node 18 or later.
 
 ## Known gaps before real use
 
