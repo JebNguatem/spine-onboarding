@@ -1,0 +1,15 @@
+{
+  "_note": "Synthetic. Tests precedence: a worker with a wrong form AND missing documents must go to Human Review, not the reminder queue.",
+  "company": {
+    "name": "Conflict Co",
+    "state": "CA",
+    "headcount": 12,
+    "has_benefits_plan": false,
+    "employees": [
+      {"name": "Alex Test", "worker_type": "employee"}
+    ]
+  },
+  "submissions": [
+    {"worker_name": "Alex Test", "doc_type": "W-9"}
+  ]
+}
