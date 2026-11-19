@@ -1,0 +1,33 @@
+{
+  "_note": "All names and companies are synthetic. Do not replace with real client or employee data.",
+  "companies": [
+    {
+      "name": "Acme Synthetic Co",
+      "state": "CA",
+      "headcount": 30,
+      "has_benefits_plan": true,
+      "kickoff_date": "2026-11-01",
+      "employees": [
+        {"name": "Ada Example", "worker_type": "employee", "start_date": "2026-11-03"},
+        {"name": "Ben Example", "worker_type": "employee", "start_date": "2026-11-03"},
+        {"name": "Cy Contractor", "worker_type": "contractor", "start_date": "2026-11-05"}
+      ]
+    },
+    {
+      "name": "Mixed Edge Labs",
+      "state": "ZZ",
+      "headcount": 80,
+      "has_benefits_plan": false,
+      "kickoff_date": "2026-10-01",
+      "employees": [
+        {"name": "Dee Example", "worker_type": "employee", "start_date": "2026-10-05"}
+      ]
+    }
+  ],
+  "submissions": [
+    {"company": "Acme Synthetic Co", "worker_name": "Ada Example", "doc_type": "W-4", "filename": "ada_w4.pdf", "received_on": "2026-11-03"},
+    {"company": "Acme Synthetic Co", "worker_name": "Ada Example", "doc_type": "W-4", "filename": "ada_w4_copy.pdf", "received_on": "2026-11-04"},
+    {"company": "Acme Synthetic Co", "worker_name": "Ada Example", "doc_type": "W-9", "filename": "ada_w9_wrong_form.pdf", "received_on": "2026-11-04"},
+    {"company": "Acme Synthetic Co", "worker_name": "Cy Contractor", "doc_type": "W-9", "filename": "cy_w9.pdf", "received_on": "2026-11-05"}
+  ]
+}
