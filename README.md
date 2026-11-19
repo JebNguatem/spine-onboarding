@@ -59,7 +59,7 @@ Worker problems take precedence over missing documents. An intake with a wrong f
 
 - Python engine: 17 tests pass.
 - Routing logic: 6 cases pass with `test_evaluate_intake.js`.
-- n8n workflow: clean, partial, headcount, and unknown-worker runs confirmed in n8n. The precedence case is checked by the JS test but not yet run through the workflow. See the table in `CASE_STUDY.md`.
+- n8n workflow: all five routing scenarios, including the precedence case (wrong form plus missing documents), were run in n8n. See the table in `CASE_STUDY.md`.
 
 ## Known gaps
 
