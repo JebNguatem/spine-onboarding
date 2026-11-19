@@ -48,9 +48,9 @@ The n8n workflow was run against sample payloads. Each run shows which branch th
 | Clean intake | "Clean Co" in CA, 2 workers, all 8 required documents | Ready Path | `ready: true`, no flags |
 | Partial intake | "Partial Co" in TX, Alex submitted OFFER_LETTER and W-4, Sam submitted W-9 | Approval Queue (reminders) | Reminder targets: Alex is missing I-9 and DIRECT_DEPOSIT. Sam is missing CONTRACTOR_AGREEMENT. |
 | Headcount and unknown worker | Headcount 60, submission from "Ghost" who is not on the roster | Human Review Queue | Both problems flagged |
-| Precedence: wrong form and missing documents | "Conflict Co" in CA, Alex submitted a W-9 instead of a W-4 and has other documents missing | Human Review Queue, reminder queue skipped | Expected. Confirmed by the JS test harness; see status below. |
+| Precedence: wrong form and missing documents | "Conflict Co" in CA, Alex submitted a W-9 instead of a W-4 and has other documents missing | Human Review Queue, reminder queue skipped | Run in n8n (execution 13). Alex is `needs_review` with `unexpected:W-9`, so `needs_human_review` is true and `has_missing` is false. |
 
-The first four rows were run in n8n. The precedence row was checked with `node n8n/test_evaluate_intake.js`, which runs the same logic outside n8n. It has not yet been run through the workflow itself.
+All five rows were run in n8n. To reproduce the JS checks outside n8n, run `node n8n/test_evaluate_intake.js` from the repo root. It requires Node 18 or later.
 
 To reproduce the JS checks, run `node n8n/test_evaluate_intake.js` from the repo root. It requires Node 18 or later.
 
