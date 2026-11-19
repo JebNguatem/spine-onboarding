@@ -1,0 +1,169 @@
+{
+  "name": "Spine Onboarding Intake (synthetic demo)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-intake",
+        "responseMode": "lastNode"
+      },
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Intake evaluation for the n8n Code node. Mirrors onboarding.py. Keep in sync.\n// Input: { body: { company: {...}, submissions: [...] } } from the webhook.\n// Output: one item with flags, per-worker status, and routing booleans.\n\nconst payload = $json.body ?? $json;\nconst company = payload.company;\nconst submissions = payload.submissions || [];\n\nconst STATE_RULES = { CA: \"STATE_WITHHOLDING\", NY: \"STATE_WITHHOLDING\", TX: null };\nconst MAX_AUTO_HEADCOUNT = 50;\nconst hasRule = s => Object.prototype.hasOwnProperty.call(STATE_RULES, s);\n\nfunction requiredDocs(emp) {\n  if (emp.worker_type === \"contractor\") return [\"W-9\", \"CONTRACTOR_AGREEMENT\"];\n  const docs = [\"OFFER_LETTER\", \"W-4\", \"I-9\", \"DIRECT_DEPOSIT\"];\n  if (hasRule(company.state) && STATE_RULES[company.state]) docs.push(STATE_RULES[company.state]);\n  if (company.has_benefits_plan) docs.push(\"BENEFITS_ENROLLMENT\");\n  return docs;\n}\n\nconst flags = [];\nif (company.headcount > MAX_AUTO_HEADCOUNT) {\n  flags.push(`Headcount ${company.headcount} exceeds the auto-processing limit of ${MAX_AUTO_HEADCOUNT}.`);\n}\nif (!hasRule(company.state)) {\n  flags.push(`State \"${company.state}\" has no configured rules.`);\n}\n\nconst employees = company.employees || [];\nconst names = new Set(employees.map(e => e.name));\nconst seen = new Set();\nconst problems = Object.fromEntries(employees.map(e => [e.name, []]));\nconst unknown = [];\n\nfor (const s of submissions) {\n  if (!names.has(s.worker_name)) { unknown.push(s.worker_name); continue; }\n  const key = s.worker_name + \"|\" + s.doc_type;\n  if (seen.has(key)) { problems[s.worker_name].push(\"duplicate:\" + s.doc_type); continue; }\n  seen.add(key);\n  const emp = employees.find(e => e.name === s.worker_name);\n  if (!requiredDocs(emp).includes(s.doc_type)) problems[s.worker_name].push(\"unexpected:\" + s.doc_type);\n}\nif (unknown.length) {\n  flags.push(\"Submissions for workers not on the roster: \" + [...new Set(unknown)].join(\", \") + \".\");\n}\n\nconst workers = employees.map(emp => {\n  const required = requiredDocs(emp);\n  const received = new Set(submissions.filter(s => s.worker_name === emp.name).map(s => s.doc_type));\n  const missing = required.filter(d => !received.has(d));\n  const probs = problems[emp.name];\n  const state = probs.length ? \"needs_review\" : missing.length ? \"missing\" : \"complete\";\n  return { name: emp.name, state, missing, problems: probs };\n});\n\nconst needsHumanReview = flags.length > 0 || workers.some(w => w.state === \"needs_review\");\nconst reminderTargets = workers.filter(w => w.state === \"missing\");\n\nreturn [{\n  json: {\n    company: company.name,\n    flags,\n    workers,\n    needs_human_review: needsHumanReview,\n    has_missing: reminderTargets.length > 0,\n    reminder_targets: reminderTargets.map(w => ({ worker: w.name, missing: w.missing })),\n    ready: !needsHumanReview && reminderTargets.length === 0\n  }\n}];\n"
+      },
+      "name": "Evaluate Intake",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ],
+      "notes": "Same worker-level and company-level checks as onboarding.py. Keep in sync."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.needs_human_review}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Needs Human Review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "Human Review Queue",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        960,
+        160
+      ],
+      "notes": "Company-level flags or worker problems (wrong form, duplicate, unknown worker). Replace with Slack or Notion to post the flags."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.has_missing}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Has Missing Items?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        960,
+        400
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "Approval Queue (reminders)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        320
+      ],
+      "notes": "Drafts for workers with missing items. A human must approve before anything is sent. Do not connect a sending node without an approval step."
+    },
+    {
+      "parameters": {},
+      "name": "Ready Path",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        500
+      ],
+      "notes": "Complete, clean intakes. Replace with a notification to ops."
+    }
+  ],
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Intake": {
+      "main": [
+        [
+          {
+            "node": "Needs Human Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Human Review?": {
+      "main": [
+        [
+          {
+            "node": "Human Review Queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Has Missing Items?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Missing Items?": {
+      "main": [
+        [
+          {
+            "node": "Approval Queue (reminders)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ready Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": [
+    "demo",
+    "synthetic-data-only"
+  ]
+}
