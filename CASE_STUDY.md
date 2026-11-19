@@ -50,6 +50,8 @@ The n8n workflow was run against sample payloads. Each run shows which branch th
 | Headcount and unknown worker | Headcount 60, submission from "Ghost" who is not on the roster | Human Review Queue | Both problems flagged |
 | Precedence: wrong form and missing documents | "Conflict Co" in CA, Alex submitted a W-9 instead of a W-4 and has other documents missing | Human Review Queue, reminder queue skipped | Run in n8n (execution 13). Alex is `needs_review` with `unexpected:W-9`, so `needs_human_review` is true and `has_missing` is false. |
 
+A worker with a wrong form is held for human review before any reminders go out, even for their other missing documents. This means the client won't hear about the rest of their list until the wrong form is resolved. We chose that on purpose, because a reminder sent while the intake is still wrong could ask for the wrong things.
+
 All five rows were run in n8n. To reproduce the JS checks outside n8n, run `node n8n/test_evaluate_intake.js` from the repo root. It requires Node 18 or later.
 
 
