@@ -1,0 +1,17 @@
+{
+  "company": {
+    "name": "Acme Synthetic Co",
+    "state": "CA",
+    "headcount": 30,
+    "has_benefits_plan": true,
+    "employees": [
+      {"name": "Ada Example", "worker_type": "employee"},
+      {"name": "Cy Contractor", "worker_type": "contractor"}
+    ]
+  },
+  "submissions": [
+    {"worker_name": "Ada Example", "doc_type": "W-4"},
+    {"worker_name": "Ada Example", "doc_type": "W-9"},
+    {"worker_name": "Cy Contractor", "doc_type": "W-9"}
+  ]
+}
